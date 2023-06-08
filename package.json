@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "start": "ts-node src/index.ts",
     "lint": "eslint src/**/*.ts",
-    "format": "eslint src/**/*.ts --fix && prettier --write src/**/*.{ts,json}",
-    "prettier": "prettier --check src/**/*.{ts,json}"
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "prettier": "prettier --check src/**/*.ts",
+    "format": "prettier --write src/**/*ts"
   },
   "keywords": [],
   "author": "",
