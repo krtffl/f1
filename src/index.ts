@@ -1,9 +1,18 @@
-function sayMyName(name: string): void {
-    if (name === 'Heisenberg') {
-        console.log("you're right");
-    } else {
-        console.log("you're not right");
-    }
-}
+import _ from "lodash";
+import fastify from "fastify";
 
-sayMyName('pedro');
+const server = fastify();
+
+server.get('/ping', async () => {
+    return 'pong'
+})
+
+server.listen({port: 8080 }, (err, address) => {
+    if (err) {
+        console.error(err);
+        process.exit(1);
+    }
+
+    console.log(`server listening at ${address}`);
+})
+
