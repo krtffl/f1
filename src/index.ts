@@ -1,18 +1,16 @@
-import _ from "lodash";
-import fastify from "fastify";
+import fastify from 'fastify';
 
 const server = fastify();
 
 server.get('/ping', async () => {
-    return 'pong'
-})
+    return 'pong';
+});
 
-server.listen({port: 8080 }, (err, address) => {
+server.listen({ port: 8080 }, (err, address) => {
     if (err) {
         console.error(err);
         process.exit(1);
     }
 
     console.log(`server listening at ${address}`);
-})
-
+});
