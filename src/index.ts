@@ -1,16 +1,20 @@
 import fastify from 'fastify';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
 
-const server = fastify();
+const server = fastify({ logger: true });
 
-server.get('/ping', async () => {
-    return 'pong';
+server.register(fastifyStatic, {
+    root: path.join(__dirname, '..', 'public'),
 });
 
-server.listen({ port: 8080 }, (err, address) => {
+server.get('/status', async (_, reply) => {
+    return reply.sendFile('status.html');
+});
+
+server.listen({ port: 8080 }, (err) => {
     if (err) {
         console.error(err);
         process.exit(1);
     }
-
-    console.log(`server listening at ${address}`);
 });

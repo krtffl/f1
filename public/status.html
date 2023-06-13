@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Formula 1 Web Page</title>
+        <style>
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f1f1f1;
+}
+
+    #logo {
+        max-width: 300px;
+    }
+        </style>
+        <script>
+            window.addEventListener('load', function() {
+                const audio = new Audio('./static/theme.mp3')
+                audio.loop = true;
+                audio.play();
+            });
+        </script>
+    </head>
+    <body>
+        <img id="logo" src="./static/logo.png" alt="formula 1 logo">
+    </body>
+</html>
+
