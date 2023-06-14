@@ -32,7 +32,7 @@ const parseResponse = (data: string, url: string): TeamRadio[] => {
         path: url.replace('TeamRadio.jsonStream', r),
         driver: r.split('/')[1]?.split('_')[0]?.slice(0, 6),
         driverNumber: r.split('_')[1],
-        timestamp: r.split('_')[3]?.split('.')[0],
+        timestamp: r.split('_')[3]?.split('.')[0]?.match(/.{2}/g)?.join(':'),
     }));
 };
 
