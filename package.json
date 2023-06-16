@@ -31,6 +31,8 @@
   },
   "dependencies": {
     "@fastify/static": "^6.10.2",
+    "@fastify/type-provider-typebox": "^3.2.0",
+    "@sinclair/typebox": "^0.28.15",
     "axios": "^1.4.0",
     "dayjs": "^1.11.8",
     "fastify": "^4.17.0",

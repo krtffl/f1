@@ -1,4 +1,5 @@
 import axios from 'axios';
+import _ from 'lodash';
 import { GrandPrix } from '../ergast-api/races';
 import { Session, TEAM_RADIO, getSessionRadiosSource } from './config';
 import { Driver } from '../ergast-api/drivers';
@@ -25,14 +26,22 @@ export const getSessionRadios = async (gp: GrandPrix, session: Session): Promise
     }
 };
 
-export const getDriverSessionRadios = async (driver: Driver, gp: GrandPrix, session: Session): Promise<Radio[]> => {
+export const getDriverSessionRadios = async (
+    driver: Driver['code'],
+    gp: GrandPrix,
+    session: Session,
+): Promise<Radio[]> => {
     const radios = await getSessionRadios(gp, session);
-    return radios.filter((r) => r.driver === driver.code);
+    const driverRadios = radios.filter((r) => r.driver === driver);
+    if (_.isEmpty(driverRadios)) {
+        throw new Error(`could not find $${driver}'s ${gp.name} ${session} team radios`);
+    }
+    return driverRadios;
 };
 
 const parseResponse = (data: string, url: string): Radio[] => {
     const radios = data.match(TEAM_RADIO);
-    if (!radios) {
+    if (_.isEmpty(radios) || _.isNil(radios)) {
         throw new Error(`could not find team radios`);
     }
     return radios.map((r) => ({

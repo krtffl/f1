@@ -10,7 +10,7 @@ export type Driver = {
     nationality: string;
 };
 
-export const getDrivers = async (year: string): Promise<Driver[]> => {
+export const getDrivers = async (year: number): Promise<Driver[]> => {
     try {
         console.log(`fetching drivers from ${year}`);
         const { data } = await axios.get<DriversResponse>(`${BASE_URL}/${year}/drivers.json`);

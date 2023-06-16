@@ -1,14 +1,18 @@
 import fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
 import path from 'path';
-import { parseInt } from 'lodash';
-import { Session } from './livetiming/config';
 import { getSeasons } from './ergast-api/seasons';
 import { getGrandPrix, getSeason } from './ergast-api/races';
-import { getSessionRadios } from './livetiming/radios';
 import { getDrivers } from './ergast-api/drivers';
+import { Type, TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import { Session } from './live-api/config';
+import { getDriverSessionRadios, getSessionRadios } from './live-api/radios';
 
-const server = fastify({ logger: true });
+const server = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+
+const Year = Type.Number({ maximum: 9999, minimum: 1})
+const Race = Type.Number({ maximum: 24, minimum: 1})
+const Driver = Type.String({ minLength: 6, maxLength: 6 })
 
 server.register(fastifyStatic, {
     root: path.join(__dirname, '..', 'public'),
@@ -27,31 +31,43 @@ server.get('/seasons', async (_, reply) => {
     return reply.send(seasons);
 });
 
-server.get<{ Params: { season: string } }>('/seasons/:season', async (request, reply) => {
-    const { season: year } = request.params;
+server.get('/seasons/:year',  { schema: { params: Type.Object({year: Year})}},  async (request, reply) => {
+    const { year } = request.params;
     const season = await getSeason(year);
     return reply.send(season);
 });
 
-server.get<{ Params: { season: string; race: string } }>('/seasons/:season/:race', async (request, reply) => {
-    const { season: year, race: round } = request.params;
-    const race = await getGrandPrix((year), (round));
-    return reply.send(race);
+server.get('/seasons/:year/:race', { schema: { params: Type.Object({year: Year, race: Race})}}, async (request, reply) => {
+    const { year, race } = request.params;
+    const gp = await getGrandPrix(year, race);
+    return reply.send(gp);
 });
 
-server.get<{ Params: { season: string; race: string; session: Session } }>(
-    '/seasons/:season/:race/:session',
+server.get(
+    '/seasons/:year/:race/:session',
+    { schema: { params: Type.Object({ year: Year, race: Race, session: Type.Enum(Session)})}},
     async (request, reply) => {
-        const { season: year, race: round, session } = request.params;
-        const race = await getGrandPrix((year), (round));
-        const radios = await getSessionRadios(race, session);
+        const { year, race, session } = request.params;
+        const gp = await getGrandPrix(year, race);
+        const radios = await getSessionRadios(gp, session);
         return reply.send(radios);
     },
 );
 
-server.get<{ Params: { season: string } }>('/seasons/:season/drivers', async (request, reply) => {
-    const { season } = request.params;
-    const drivers = await getDrivers((season));
+server.get(
+    '/seasons/:year/:race/:session/:driver',
+    { schema: { params: Type.Object({ year: Year, race: Race, session: Type.Enum(Session), driver: Driver})}},
+    async (request, reply) => {
+        const { year, race, session, driver } = request.params;
+        const gp = await getGrandPrix(year, race);
+        const radios = await getDriverSessionRadios(driver, gp, session);
+        return reply.send(radios);
+    },
+);
+
+server.get('/seasons/:year/drivers', {  schema: { params: Type.Object({year: Year})}}, async (request, reply) => {
+    const { year } = request.params;
+    const drivers = await getDrivers(year);
     return reply.send(drivers);
 });
 

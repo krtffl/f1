@@ -45,23 +45,23 @@ type GrandPrix = {
     url: string;
     raceName: string;
     Circuit: Circuit;
-    FirstPractice: Session;
-    SecondPractice: Session;
+    FirstPractice?: Session;
+    SecondPractice?: Session;
     ThirdPractice?: Session;
-    Qualifying: Session;
+    Qualifying?: Session;
     Sprint?: Session;
 };
 
 type Session = {
     date: string;
-    time: string;
+    time?: string;
 };
 
 type Circuit = {
     circuitId: string;
     url: string;
     circuitName: string;
-    location: {
+    Location: {
         lat: string;
         long: string;
         locality: string;

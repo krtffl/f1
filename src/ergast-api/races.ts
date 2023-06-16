@@ -10,9 +10,9 @@ export type GrandPrix = {
     country: string;
     locality: string;
     race: Session;
-    qualifying: Session;
-    freePractice1: Session;
-    freePractice2: Session;
+    qualifying?: Session;
+    freePractice1?: Session;
+    freePractice2?: Session;
     freePractice3?: Session;
     sprint?: Session;
     shootout?: Session;
@@ -20,10 +20,10 @@ export type GrandPrix = {
 
 type Session = {
     date: string;
-    time: string;
+    time?: string;
 };
 
-export const getGrandPrix = async (year: string, round: string): Promise<GrandPrix> => {
+export const getGrandPrix = async (year: number, round: number): Promise<GrandPrix> => {
     try {
         console.log(`fetching race ${round} from ${year}`);
         const { data } = await axios.get<RacesResponse>(`${BASE_URL}/${year}/${round}.json`);
@@ -38,7 +38,7 @@ export const getGrandPrix = async (year: string, round: string): Promise<GrandPr
     }
 };
 
-export const getSeason = async (year: string): Promise<GrandPrix[]> => {
+export const getSeason = async (year: number): Promise<GrandPrix[]> => {
     try {
         console.log(`fetching races from ${year}`);
         const { data } = await axios.get<RacesResponse>(`${BASE_URL}/${year}.json`);
@@ -59,8 +59,8 @@ const parseResponse = (data: RacesResponse): GrandPrix[] => {
         season: race.season,
         name: race.raceName,
         circuit: race.Circuit.circuitName,
-        country: race.Circuit.location.country,
-        locality: race.Circuit.location.locality,
+        country: race.Circuit.Location.country,
+        locality: race.Circuit.Location.locality,
         race: { date: race.date, time: race.time },
         qualifying: race.Qualifying,
         freePractice1: race.FirstPractice,

@@ -44,16 +44,16 @@ const getSessionDate = (gp: GrandPrix, session: Session): Dayjs | undefined => {
             date = dayjs(gp.race.date);
             break;
         case Session.Quali:
-            date = dayjs(gp.qualifying.date);
+            date = dayjs(gp.qualifying?.date);
             break;
         case Session.Sprint:
             date = dayjs(gp.sprint?.date);
             break;
         case Session.FP1:
-            date = dayjs(gp.freePractice1.date);
+            date = dayjs(gp.freePractice1?.date);
             break;
         case Session.FP2:
-            date = dayjs(gp.freePractice2.date);
+            date = dayjs(gp.freePractice2?.date);
             break;
         case Session.FP3:
             date = dayjs(gp.freePractice3?.date);
