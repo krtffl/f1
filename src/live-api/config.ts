@@ -1,4 +1,5 @@
 import dayjs, { Dayjs } from 'dayjs';
+
 import { GrandPrix } from '../ergast-api/races';
 
 export const BASE_URL = 'https://livetiming.formula1.com/static';

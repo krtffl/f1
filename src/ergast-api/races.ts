@@ -1,5 +1,6 @@
-import _ from 'lodash';
 import axios from 'axios';
+import _ from 'lodash';
+
 import { BASE_URL, RacesResponse } from './config';
 
 export type GrandPrix = {

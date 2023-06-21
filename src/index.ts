@@ -1,79 +1,70 @@
-import fastify from 'fastify';
 import fastifyStatic from '@fastify/static';
+import fastifySwagger from '@fastify/swagger';
+import fastifySwaggerUi from '@fastify/swagger-ui';
+import { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import fastify from 'fastify';
 import path from 'path';
-import { getSeasons } from './ergast-api/seasons';
-import { getGrandPrix, getSeason } from './ergast-api/races';
-import { getDrivers } from './ergast-api/drivers';
-import { Type, TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import { Session } from './live-api/config';
-import { getDriverSessionRadios, getSessionRadios } from './live-api/radios';
 
-const server = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+import { router } from './routes';
 
-const Year = Type.Number({ maximum: 9999, minimum: 1})
-const Race = Type.Number({ maximum: 24, minimum: 1})
-const Driver = Type.String({ minLength: 6, maxLength: 6 })
+export const server = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 
 server.register(fastifyStatic, {
     root: path.join(__dirname, '..', 'public'),
 });
 
-server.get('/status', async (_, reply) => {
-    return reply.sendFile('status.html');
-});
-
-server.get('/sessions', async (_, reply) => {
-    return reply.send(Object.keys(Session));
-});
-
-server.get('/seasons', async (_, reply) => {
-    const seasons = await getSeasons();
-    return reply.send(seasons);
-});
-
-server.get('/seasons/:year',  { schema: { params: Type.Object({year: Year})}},  async (request, reply) => {
-    const { year } = request.params;
-    const season = await getSeason(year);
-    return reply.send(season);
-});
-
-server.get('/seasons/:year/:race', { schema: { params: Type.Object({year: Year, race: Race})}}, async (request, reply) => {
-    const { year, race } = request.params;
-    const gp = await getGrandPrix(year, race);
-    return reply.send(gp);
-});
-
-server.get(
-    '/seasons/:year/:race/:session',
-    { schema: { params: Type.Object({ year: Year, race: Race, session: Type.Enum(Session)})}},
-    async (request, reply) => {
-        const { year, race, session } = request.params;
-        const gp = await getGrandPrix(year, race);
-        const radios = await getSessionRadios(gp, session);
-        return reply.send(radios);
+server.register(fastifySwagger, {
+    swagger: {
+        info: {
+            title: 'f1 team radios',
+            description: 'get your fav driver team radio for any race you want',
+            version: '1.0.0',
+        },
+        host: 'localhost:8080',
+        schemes: ['http'],
+        consumes: ['application/json'],
+        produces: ['application/json'],
+        tags: [
+            { name: 'health', description: 'to check api health' },
+            { name: 'meta', description: 'to get config params' },
+            { name: 'radios', description: 'to get radios urls' },
+        ],
     },
-);
-
-server.get(
-    '/seasons/:year/:race/:session/:driver',
-    { schema: { params: Type.Object({ year: Year, race: Race, session: Type.Enum(Session), driver: Driver})}},
-    async (request, reply) => {
-        const { year, race, session, driver } = request.params;
-        const gp = await getGrandPrix(year, race);
-        const radios = await getDriverSessionRadios(driver, gp, session);
-        return reply.send(radios);
-    },
-);
-
-server.get('/seasons/:year/drivers', {  schema: { params: Type.Object({year: Year})}}, async (request, reply) => {
-    const { year } = request.params;
-    const drivers = await getDrivers(year);
-    return reply.send(drivers);
 });
 
-server.listen({ port: 8080 }, (err) => {
-    if (err) {
-        console.error(err);
+server.register(fastifySwaggerUi, {
+    routePrefix: '/docs',
+    uiConfig: {
+        docExpansion: 'full',
+        deepLinking: false,
+    },
+    uiHooks: {
+        onRequest: function (_, _2, next) {
+            next();
+        },
+        preHandler: function (_, _2, next) {
+            next();
+        },
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
+    transformSpecification: (swaggerObject) => {
+        return swaggerObject;
+    },
+    transformSpecificationClone: true,
+});
+
+server.register(router);
+
+const start = async () => {
+    try {
+        await server.ready();
+        server.swagger();
+        await server.listen({ port: 8080 });
+    } catch (e) {
+        console.error(e);
         process.exit(1);
     }
-});
+};
+
+start();

@@ -1,8 +1,9 @@
 import axios from 'axios';
 import _ from 'lodash';
-import { GrandPrix } from '../ergast-api/races';
-import { Session, TEAM_RADIO, getSessionRadiosSource } from './config';
+
 import { Driver } from '../ergast-api/drivers';
+import { GrandPrix } from '../ergast-api/races';
+import { getSessionRadiosSource, Session, TEAM_RADIO } from './config';
 
 type Radio = {
     url: string;
